@@ -1,0 +1,38 @@
+QWidget {
+        background-color: #FFF6D6;
+        color: #330000;
+    }
+QListWidget {
+    color: #33373B;
+    background-color: #33373B;
+}
+
+QListWidget::item {
+    height: 50px;
+}
+
+QListWidget::item:selected {
+    background-color: #E1CB74;
+}
+
+QLabel {
+    background-color: #E1CB74;
+    qproperty-alignment: AlignCenter;
+    font-size: 18px;
+}
+
+QPushButton {
+    background-color: #E1CB74;
+    padding: 20px;
+    font-size: 14px;
+}
+
+QPushButton:pressed {
+    background-color: #E1CB74;
+}
+QPushButton:disabled {
+    background-color: #E1CB74;
+}
+QCheckBox{
+    font-size: 16px;
+}
