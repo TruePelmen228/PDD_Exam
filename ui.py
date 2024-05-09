@@ -31,7 +31,11 @@ class MainWindow(QMainWindow):
     big_queue=[]
     ans_q=[]
     tabel=[]
-    g=0
+    timer = QTimer()
+    
+    exam_time = 0
+    timer_str = "58:20"
+    timer_labels = []
     def __init__(self):
         super().__init__()
 
@@ -63,38 +67,59 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.start_widget[0])
 
     def exam(self):
-        self.sender().hide()
+        #self.sender().hide()
+        self.exam_time = 1200
         self.start_widget[0].hide()
+        self.start_widget[0] = self.takeCentralWidget()
+        self.timer.timeout.connect(self.processOneThing)
+        
 
-        self.exam_widget.append(QWidget(self)) 
-        
-        layout = QVBoxLayout() #Главный шаблон окна
-        sas_layout = QVBoxLayout() #Тут всё понятно
-        buttons_Vlayaut = QVBoxLayout()
-        buttons_Hlayaut = QHBoxLayout()
-        down_layout = QHBoxLayout()
-        
-        
 
         
         for i in range(len(self.queue_q)):
+            q_widget =  QWidget(self)
+            self.exam_widget.append(q_widget) 
+        
+            layout = QVBoxLayout() #Главный шаблон окна
+            sas_layout = QVBoxLayout() #Тут всё понятно
+            buttons_Vlayaut = QVBoxLayout()
+            buttons_Hlayaut = QHBoxLayout()
+            down_layout = QHBoxLayout()
+            
             masas = []           
-            label = QLabel(self.queue_q[self.g+i][2], self)
-            layout.addWidget(label)
+            label = QLabel(self.queue_q[self.current_issue+i][2], self)
+            self.timer_labels.append(QLabel(self))
+            buttonlabel_Hlayaut = QHBoxLayout()
+            
+            button_stop = QPushButton("X", self)
+            button_stop.setCheckable(True)
+            #button_stop.clicked.connect(lambda state, sas=sas: self.the_button_was_clicked(sas))
+            button_stop.setStyleSheet("font-size: 16pt;")
+            button_stop.setFixedSize(60,60)
+            button_stop.show()
+
+            buttonlabel_Hlayaut.addWidget(button_stop)
+            buttonlabel_Hlayaut.addWidget(label)
+            
+            layout.addLayout(buttonlabel_Hlayaut)
+            layout.addWidget(self.timer_labels[i])
             layout.addSpacerItem(QSpacerItem(10,10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
             lb = QLabel(self)
             label.setWordWrap(True)
             label.resize(785, 100)
-            if str(self.queue_q[self.g+i][3]) != '-':
-                print(str(self.queue_q[self.g+i][3]))
+            if str(self.queue_q[self.current_issue+i][3]) != '-':
+                print(str(self.queue_q[self.current_issue+i][3]))
                 
 
-                lb.move(65, 110)
+                #lb.move(65, 110)
                 lb.resize(750, 280)
-                lb.setPixmap(QPixmap(str(self.queue_q[self.g+i][3])).scaled(lb.size()))
+                lb.setPixmap(QPixmap(str(self.queue_q[self.current_issue+i][3])).scaled(lb.size()))
                 layout.addWidget(lb)
-            label.hide()
-            lb.hide()
+                layout.insertSpacing(4,150)
+            else:
+                layout.insertSpacing(2,400)
+            #label.hide()
+            #lb.hide()
             sas = []
             
             masas.append(label)
@@ -102,7 +127,7 @@ class MainWindow(QMainWindow):
             #a1 = QCheckBox(self)
             #a2 = QCheckBox(self)
             #a3 = QCheckBox(self)
-            ot = 50 #Отступы (Можно было назвать padding😡😡😡)
+            #ot = 50 #Отступы (Можно было назвать padding😡😡😡)
             #a1.stateChanged.connect(self.onStateChanged)
             #a2.stateChanged.connect(self.onStateChanged)
             #a3.stateChanged.connect(self.onStateChanged)
@@ -110,7 +135,7 @@ class MainWindow(QMainWindow):
             sas.append(QCheckBox(self))
             sas.append(QCheckBox(self))
             hg = 60
-            if self.queue_q[self.g+i][7] != "-":
+            if self.queue_q[self.current_issue+i][7] != "-":
                 #a4 = QCheckBox(self)
                 #a4.stateChanged.connect(self.onStateChanged)
                 sas.append(QCheckBox(self))
@@ -118,104 +143,159 @@ class MainWindow(QMainWindow):
                 hg = 55
             a = 0
             for checkbox in sas:
-                checkbox.setText(self.queue_q[self.g+i][sas.index(checkbox) + 4])
+                checkbox.setText(self.queue_q[self.current_issue+i][sas.index(checkbox) + 4])
                 #checkbox.resize(510, 80)
                 #checkbox.move(50, 550-ot-hg*a)
-                checkbox.hide()
+                #checkbox.hide()
                 checkbox.stateChanged.connect(lambda state, sas=sas: self.onStateChanged(sas))
                 word_wrap(checkbox)
                 masas.append(checkbox)
                 a+=1
                 sas_layout.addWidget(checkbox)
             self.big_queue.append(masas)
-
-        for i in range(len(self.big_queue[self.g])):
-            self.big_queue[self.g][i].show()
-        
-        button_sl = QPushButton("->", self)
-        button_sl.setCheckable(True)
-        button_sl.resize(60, 60)
-        button_sl.clicked.connect(self.the_button_was_clicked)
-        button_sl.move(620,500)
-        button_sl.setStyleSheet("font-size: 15pt;")
-        button_sl.show()
-
-        button_s2 = QPushButton("<-", self)
-        button_s2.setCheckable(True)
-        button_s2.resize(60, 60)
-        button_s2.clicked.connect(self.the_button_was_clicked)
-        #button_s2.move(560,500)
-        button_s2.setStyleSheet("font-size: 15pt;")
-        button_s2.show()
-        buttons_Hlayaut.addSpacing(200)
-        buttons_Hlayaut.addWidget(button_s2)
-        buttons_Hlayaut.addWidget(button_sl)
-        #buttons_Hlayaut.setContentsMargins(20,80,20,20)
             
-        buttons_Vlayaut.addLayout(buttons_Hlayaut)
+            button_sl = QPushButton("->", self)
+            button_sl.setCheckable(True)
+            button_sl.resize(60, 60)
+            button_sl.clicked.connect(lambda state, sas=sas: self.the_button_was_clicked(sas))
+            button_sl.move(620,500)
+            button_sl.setStyleSheet("font-size: 15pt;")
+            button_sl.setFixedSize(60,60)
+            button_sl.show()
 
-        down_layout.addLayout(sas_layout)
-        down_layout.addLayout(buttons_Vlayaut)
-        layout.addLayout(down_layout)
-        self.exam_widget[self.current_issue].setLayout(layout)
-        self.setCentralWidget(self.exam_widget[self.current_issue])
+            button_s2 = QPushButton("<-", self)
+            button_s2.setCheckable(True)
+            button_s2.resize(60, 60)
+            button_s2.clicked.connect(self.the_button_back_was_clicked)
+            #button_s2.move(560,500)
+            button_s2.setStyleSheet("font-size: 15pt;")
+            button_s2.setFixedSize(60,60)
+            button_s2.show()
+            buttons_Hlayaut.addSpacing(200)
+            buttons_Hlayaut.addWidget(button_s2)
+            buttons_Hlayaut.addWidget(button_sl)
+            #buttons_Hlayaut.setContentsMargins(20,80,20,20)
+            
+            buttons_Vlayaut.addLayout(buttons_Hlayaut)
+
+            down_layout.addLayout(sas_layout)
+            down_layout.addLayout(buttons_Vlayaut)
+            layout.addLayout(down_layout)
+            self.exam_widget[i].setLayout(layout)
+            self.exam_widget[i].hide()
+            
+
+        for i in range(len(self.big_queue[self.current_issue])):
+            self.big_queue[self.current_issue][i].show()
         self.exam_widget[self.current_issue].show()
+        self.setCentralWidget(self.exam_widget[self.current_issue])
+        self.timer.start(1000)
+        self.set_time_srt()
+        
+        
+        
 
-    def the_button_was_clicked(self):
-            if len(self.ans_q)<=self.g:
+    def the_button_was_clicked(self, sas):
+            #if len(self.ans_q)<=self.current_issue:
+            is_checked = False
+            for checkbox in sas:
+                if checkbox.isChecked():
+                    is_checked = True
+                    break
+            if not(is_checked):
+
+                    QMessageBox.information(self, "Экзамен по ПДД", "Пожалуйста, выберите вариант ответа!")
+                    #dlg = QDialog(self)
+                    #dlg.setWindowTitle("ВЫБИРИТЕ ВАРИАНТ ОТВЕТА!")
+                    #dlg.resize(400, 50)
+                    #dlg.exec()
                 
-                #dlg = QDialog(self)
-                #dlg.setWindowTitle("ВЫБИРИТЕ ВАРИАНТ ОТВЕТА!")
-                #dlg.resize(400, 50)
-                #dlg.exec()
-                
-                #Здесь возможно больше подойдёт это окно:
-                QMessageBox.information(self, "Экзамен по ПДД", "Пожалуйста, выберите вариант ответа!")
+               
 
                 
             else:
-                for i in range(len(self.big_queue[self.g])):
-                    self.big_queue[self.g][i].hide()
-                #self.exam_widget[self.current_issue].hide()
+                # for i in range(len(self.big_queue[self.current_issue])):
+                #     self.big_queue[self.current_issue][i].hide()
+                self.exam_widget[self.current_issue].hide()
+                
                 #check if the right answer was chosen and put inf into table
                 
                 rec=[]
-                if self.queue_q[self.g][8]==self.ans_q[self.g]:
+                if self.queue_q[self.current_issue][8]==self.ans_q[self.current_issue]:
                     
                     rec.append(True)
                 else:
                     rec.append(False)
                 
-                rec.append(self.g+1)                
-                rec.append(self.queue_q[self.g][1])
-                rec.append(self.ans_q[self.g])
-                rec.append(self.queue_q[self.g][8])                
+                rec.append(self.current_issue+1)                
+                rec.append(self.queue_q[self.current_issue][1])
+                rec.append(self.ans_q[self.current_issue])
+                rec.append(self.queue_q[self.current_issue][8])                
                 self.tabel.append(rec)
-                self.g+=1
                 self.current_issue+=1
-                self.reload()
+                self.out_of_bt()
                 
-            
+            self.set_time_srt()
             self.sender().setChecked(False) 
-            
+    
+    def the_button_back_was_clicked(self):
+        if self.current_issue > 0:
+              self.exam_widget[self.current_issue].hide()
+              self.exam_widget[self.current_issue] = self.takeCentralWidget()
+              self.current_issue = self.current_issue - 1
+              
+              
+              self.setCentralWidget(self.exam_widget[self.current_issue])
+              self.exam_widget[self.current_issue].show()
+        self.sender().setChecked(False) 
+        self.set_time_srt()
 
-    def reload(self):
-        if self.g>=len(self.big_queue):
-            for i in range(len(self.big_queue[self.g-1])):
-                self.big_queue[self.g-1][i].hide()
+    def out_of_bt(self):
+        if self.current_issue>=len(self.big_queue):
+            for i in range(len(self.big_queue[self.current_issue-1])):
+                self.big_queue[self.current_issue-1][i].hide()
             self.sender().hide()
             self.tabel_show()
+            self.timer.stop()
         else:
-            for i in range(len(self.big_queue[self.g])):
-                self.big_queue[self.g][i].show()
-            #self.exam_widget[self.current_issue].show()
+            # for i in range(len(self.big_queue[self.current_issue])):
+            #     self.big_queue[self.current_issue][i].show()
+            if self.current_issue >0:
+                  self.exam_widget[self.current_issue-1] = self.takeCentralWidget()
+            self.setCentralWidget(self.exam_widget[self.current_issue])
+            self.exam_widget[self.current_issue].show()
+            
             #self.exam()    
-                
+    #def reload(self):
+        
+    def processOneThing(self):
+        self.exam_time = self.exam_time - 1
+        self.set_time_srt()       
+
+    def set_time_srt(self):
+            
+            minutes =    int(self.exam_time/int(60))
+            seconds = self.exam_time  - minutes * 60
+            sec = ""
+            mins = ""
+            if seconds < 10:
+                sec = f"0{seconds}"
+            else:
+                sec = f"{seconds}"
+            if minutes < 10:
+                mins = f"0{minutes}"
+            else:
+                mins = f"{minutes}"
+            self.timer_str = f"{mins}:{sec}"
+            if len(self.queue_q) > self.current_issue:
+                self.timer_labels[self.current_issue].setText(self.timer_str)
+            
+            
 
     def onStateChanged(self, sas):
         if self.sender().isChecked():
-            if len(self.ans_q)>self.g:
-                self.ans_q.pop(self.g)
+            if len(self.ans_q)>self.current_issue:
+                self.ans_q.pop(self.current_issue)
             for checkbox in sas:
                 if self.sender() != checkbox:
                     if checkbox.isChecked():
@@ -233,7 +313,7 @@ class MainWindow(QMainWindow):
         tb.setColumnWidth(3, 200)
         tb.setColumnWidth(0, 30)
         ct=0
-        for i in range(self.g):
+        for i in range(self.current_issue):
             for m in range(4):
                 tb.setItem(i,m, QTableWidgetItem(str(self.tabel[i][m+1])))
                 if m==3:
