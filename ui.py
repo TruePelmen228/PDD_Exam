@@ -1,7 +1,7 @@
 from pickle import FALSE
 import sys
 import headder
-from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtGui import QPixmap, QFont, QColor
 from PyQt6.QtWidgets import  QDialog, QTableWidgetItem, QTableWidget, QApplication, QMainWindow, QPushButton, QLabel, QCheckBox, QMessageBox, QButtonGroup, QVBoxLayout, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy
 from PyQt6.QtCore import QTimer
 
@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
     timer = QTimer()
     
     exam_time = 0
-    timer_str = "58:20"
+    timer_str = ""
     timer_labels = []
     def __init__(self):
         super().__init__()
@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
     def exam(self):
         #self.sender().hide()
         self.exam_time = 1200
+        self.sender().setChecked(False) 
         self.start_widget[0].hide()
         self.start_widget[0] = self.takeCentralWidget()
         self.timer.timeout.connect(self.processOneThing)
@@ -93,7 +94,7 @@ class MainWindow(QMainWindow):
             
             button_stop = QPushButton("X", self)
             button_stop.setCheckable(True)
-            #button_stop.clicked.connect(lambda state, sas=sas: self.the_button_was_clicked(sas))
+            button_stop.clicked.connect(self.the_button_stop_was_clicked)
             button_stop.setStyleSheet("font-size: 16pt;")
             button_stop.setFixedSize(60,60)
             button_stop.show()
@@ -238,15 +239,31 @@ class MainWindow(QMainWindow):
             self.set_time_srt()
             self.sender().setChecked(False) 
     
+    def the_button_stop_was_clicked(self):
+        reply = QMessageBox.question(self, 'Экзамен по ПДД', 'Вы уверены, что хотите прервать экзамен?', QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No)
+        self.sender().setChecked(False) 
+        if reply == QMessageBox.StandardButton.Yes:
+            self.exam_widget.clear()
+            self.current_issue = 0
+            self.big_queue.clear()
+            self.ans_q.clear()
+            self.tabel.clear()
+            self.timer.stop()
+            self.timer_labels.clear()
+            self.setCentralWidget(self.start_widget[0])
+            self.start_widget[0].show()
+            
+
+        
     def the_button_back_was_clicked(self):
         if self.current_issue > 0:
-              self.exam_widget[self.current_issue].hide()
-              self.exam_widget[self.current_issue] = self.takeCentralWidget()
-              self.current_issue = self.current_issue - 1
+                self.exam_widget[self.current_issue].hide()
+                self.exam_widget[self.current_issue] = self.takeCentralWidget()
+                self.current_issue = self.current_issue - 1
               
               
-              self.setCentralWidget(self.exam_widget[self.current_issue])
-              self.exam_widget[self.current_issue].show()
+                self.setCentralWidget(self.exam_widget[self.current_issue])
+                self.exam_widget[self.current_issue].show()
         self.sender().setChecked(False) 
         self.set_time_srt()
 
@@ -306,12 +323,12 @@ class MainWindow(QMainWindow):
     
 
     def tabel_show(self):
-        tb=QTableWidget(len(self.big_queue)+1, 4, self)
+        tb=QTableWidget(len(self.big_queue), 4, self)
         tb.setHorizontalHeaderLabels(["Номер", "Категория", "Правильный ответ", "Ответ"])
-        tb.setColumnWidth(1, 140)
+        tb.setColumnWidth(1, 200)
         tb.setColumnWidth(2, 200)
         tb.setColumnWidth(3, 200)
-        tb.setColumnWidth(0, 30)
+        tb.setColumnWidth(0, 50)
         ct=0
         for i in range(self.current_issue):
             for m in range(4):
@@ -323,11 +340,32 @@ class MainWindow(QMainWindow):
                         ct+=1
                     else:
                         col=(255, 0, 0)
-        s=QTableWidgetItem(str(ct))            
-        tb.setItem(len(self.big_queue),0, QTableWidgetItem(str(ct)))    
+
+        correct_color = QColor(0, 255, 0)
+        incorrect_color = QColor(255, 0, 0)
+
+        for i in range(self.current_issue):
+            for m in range(4):
+                item = QTableWidgetItem(str(self.tabel[i][m+1]))
+                if m == 3:  
+                    if self.tabel[i][0]:
+                        item.setBackground(correct_color)
+                    else:
+                        item.setBackground(incorrect_color)
+                tb.setItem(i, m, item)
+
+        correct_count_label = QLabel(str(ct))
+        #s=QTableWidgetItem(str(ct))            
+        #tb.setItem(len(self.big_queue),0, QTableWidgetItem(str(ct)))    
         tb.resize(785, 600)
+        #tb.sizePolicy = QSizePolicy.Policy.Maximum
         tb.show()
-        
+        correct_count_label.move(0, 650)
+        correct_count_label.show()
+
+        #correct_count_item = QTableWidgetItem(str(ct))
+        #tb.setItem(len(self.big_queue), 0, correct_count_item)
+
 
     #def update(self):
         
