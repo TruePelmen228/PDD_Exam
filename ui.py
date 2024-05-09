@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
         for i in range(len(self.big_queue[self.g])):
             self.big_queue[self.g][i].show()
         
-        button_sl = QPushButton("➡️", self)
+        button_sl = QPushButton("->️", self)
         button_sl.setCheckable(True)
         button_sl.resize(60, 60)
         button_sl.clicked.connect(self.the_button_was_clicked)
@@ -136,7 +136,7 @@ class MainWindow(QMainWindow):
         button_sl.setStyleSheet("font-size: 15pt;")
         button_sl.show()
 
-        button_s2 = QPushButton("⬅️", self)
+        button_s2 = QPushButton("<-", self)
         button_s2.setCheckable(True)
         button_s2.resize(60, 60)
         button_s2.clicked.connect(self.the_button_was_clicked)
