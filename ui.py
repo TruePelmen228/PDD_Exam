@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
     queue_q=headder.take_five('дорожные знаки', h)+headder.take_five('остановка и стоянка', h)+headder.take_five('общие положения', h)
     start_widget = [] #Интерфейс главного окна
     exam_widget = [] #Интерфейс экзаминационного окна
+    current_issue = 0
     big_queue=[]
     ans_q=[]
     tabel=[]
@@ -64,7 +65,9 @@ class MainWindow(QMainWindow):
     def exam(self):
         self.sender().hide()
         self.start_widget[0].hide()
+
         self.exam_widget.append(QWidget(self)) 
+        
         layout = QVBoxLayout() #Главный шаблон окна
         sas_layout = QVBoxLayout() #Тут всё понятно
         buttons_Vlayaut = QVBoxLayout()
@@ -78,6 +81,7 @@ class MainWindow(QMainWindow):
             masas = []           
             label = QLabel(self.queue_q[self.g+i][2], self)
             layout.addWidget(label)
+            layout.addSpacerItem(QSpacerItem(10,10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
             lb = QLabel(self)
             label.setWordWrap(True)
             label.resize(785, 100)
@@ -86,7 +90,7 @@ class MainWindow(QMainWindow):
                 
 
                 lb.move(65, 110)
-                lb.resize(720, 480)
+                lb.resize(750, 280)
                 lb.setPixmap(QPixmap(str(self.queue_q[self.g+i][3])).scaled(lb.size()))
                 layout.addWidget(lb)
             label.hide()
@@ -128,7 +132,7 @@ class MainWindow(QMainWindow):
         for i in range(len(self.big_queue[self.g])):
             self.big_queue[self.g][i].show()
         
-        button_sl = QPushButton("➡️", self)
+        button_sl = QPushButton("->", self)
         button_sl.setCheckable(True)
         button_sl.resize(60, 60)
         button_sl.clicked.connect(self.the_button_was_clicked)
@@ -136,7 +140,7 @@ class MainWindow(QMainWindow):
         button_sl.setStyleSheet("font-size: 15pt;")
         button_sl.show()
 
-        button_s2 = QPushButton("⬅️", self)
+        button_s2 = QPushButton("<-", self)
         button_s2.setCheckable(True)
         button_s2.resize(60, 60)
         button_s2.clicked.connect(self.the_button_was_clicked)
@@ -153,8 +157,9 @@ class MainWindow(QMainWindow):
         down_layout.addLayout(sas_layout)
         down_layout.addLayout(buttons_Vlayaut)
         layout.addLayout(down_layout)
-        self.exam_widget[0].setLayout(layout)
-        self.setCentralWidget(self.exam_widget[0])
+        self.exam_widget[self.current_issue].setLayout(layout)
+        self.setCentralWidget(self.exam_widget[self.current_issue])
+        self.exam_widget[self.current_issue].show()
 
     def the_button_was_clicked(self):
             if len(self.ans_q)<=self.g:
@@ -171,6 +176,7 @@ class MainWindow(QMainWindow):
             else:
                 for i in range(len(self.big_queue[self.g])):
                     self.big_queue[self.g][i].hide()
+                #self.exam_widget[self.current_issue].hide()
                 #check if the right answer was chosen and put inf into table
                 
                 rec=[]
@@ -186,9 +192,13 @@ class MainWindow(QMainWindow):
                 rec.append(self.queue_q[self.g][8])                
                 self.tabel.append(rec)
                 self.g+=1
+                self.current_issue+=1
+                self.reload()
                 
-            self.reload()
+            
             self.sender().setChecked(False) 
+            
+
     def reload(self):
         if self.g>=len(self.big_queue):
             for i in range(len(self.big_queue[self.g-1])):
@@ -198,6 +208,10 @@ class MainWindow(QMainWindow):
         else:
             for i in range(len(self.big_queue[self.g])):
                 self.big_queue[self.g][i].show()
+            #self.exam_widget[self.current_issue].show()
+            #self.exam()    
+                
+
     def onStateChanged(self, sas):
         if self.sender().isChecked():
             if len(self.ans_q)>self.g:
