@@ -25,7 +25,8 @@ def word_wrap(x):
     x.setText(s)   
 class MainWindow(QMainWindow):
     h=[]
-    queue_q=headder.take_five('скорость движения', h)+headder.take_five('остановка и стоянка', h)+headder.take_five('дорожные знаки', h)+headder.take_five('общие положения', h)
+    #queue_q=headder.take_five('скорость движения', h)+headder.take_five('остановка и стоянка', h)+headder.take_five('дорожные знаки', h)+headder.take_five('общие положения', h)
+    queue_q = []
     start_widget = [] #Интерфейс главного окна
     exam_widget = [] #Интерфейс экзаминационного окна
     current_issue = 0
@@ -69,9 +70,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.start_widget[0])
 
     def exam(self):
+        self.current_issue = 0
         now = datetime.datetime.now()
         self.current_time = now.strftime("%H:%M:%S")
         print(self.current_time)
+        self.queue_q.clear();
+        self.queue_q=headder.take_five('скорость движения', self.h)+headder.take_five('остановка и стоянка', self.h)+headder.take_five('дорожные знаки', self.h)+headder.take_five('общие положения', self.h)
         #print(current_time)
         #self.sender().hide()
         self.exam_time = 1200
@@ -250,7 +254,6 @@ class MainWindow(QMainWindow):
         self.sender().setChecked(False) 
         if reply == QMessageBox.StandardButton.Yes:
             self.exam_widget.clear()
-            self.current_issue = 0
             self.big_queue.clear()
             self.ans_q.clear()
             self.tabel.clear()
@@ -260,6 +263,17 @@ class MainWindow(QMainWindow):
             self.start_widget[0].show()
             
 
+    def the_button_end_was_clicked(self):
+        self.exam_widget.clear()
+        self.big_queue.clear()
+        self.ans_q.clear()
+        self.tabel.clear()
+        self.timer.stop()
+        self.timer_labels.clear()
+        self.ans_rec.clear()
+
+        self.setCentralWidget(self.start_widget[0])
+        self.start_widget[0].show()
         
     def the_button_back_was_clicked(self):
         if self.current_issue > 0:
@@ -339,6 +353,9 @@ class MainWindow(QMainWindow):
     
 
     def tabel_show(self):
+        q_widget =  QWidget(self)
+        v_layot = QVBoxLayout()
+
         tb=QTableWidget(len(self.big_queue), 4, self)
         tb.setHorizontalHeaderLabels(["Номер", "Категория", "Правильный ответ", "Ответ"])
         tb.setColumnWidth(1, 200)
@@ -381,17 +398,25 @@ class MainWindow(QMainWindow):
         tb.resize(785, 600)
         #tb.sizePolicy = QSizePolicy.Policy.Maximum
         tb.show()
+        v_layot.addWidget(tb)
         correct_count_label.move(0, 650)
         correct_count_label.show()
         print(self.ans_rec)
         headder.put_ans(self.ans_rec)
+        btn = QPushButton("Вернутся в главное меню");
+        btn.clicked.connect(self.the_button_end_was_clicked)
+        #v_layot.setContentsMargins(200,20,200,20)
+        v_layot.addWidget(btn)
+        q_widget.setLayout(v_layot)
+        self.setCentralWidget(q_widget)
+        q_widget.show()
         #correct_count_item = QTableWidgetItem(str(ct))
         #tb.setItem(len(self.big_queue), 0, correct_count_item)
 
     def statistics(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("Статистика за последнее время")
-        dlg.resize(500, 300)
+        dlg.resize(525, 300)
 
         mas = headder.get_ans()
         tb = QTableWidget(len(mas), 3, dlg)
@@ -401,19 +426,20 @@ class MainWindow(QMainWindow):
         tb.setColumnWidth(2, 200)
         tb.setColumnWidth(0, 50)
         for i in range(len(mas)):
-            for m in range(3):
-                if m == 1:
-                    secs = str(mas[i][2])
-                    if len(secs) == 1:
-                        secs = '0' + secs
-                    mins = str(mas[i][1])
-                    if len(mins) == 1:
-                        mins = '0' + mins
-                    time = mins + ':' + secs
-                    item = QTableWidgetItem(time)
-                else:
-                    item = QTableWidgetItem(str(mas[i][m]))
-                tb.setItem(i, m, item)
+            
+            secs = str(mas[i][2])
+            if len(secs) == 1:
+                secs = '0' + secs
+            mins = str(mas[i][1])
+            if len(mins) == 1:
+                mins = '0' + mins
+            time = mins + ':' + secs
+            item2 = QTableWidgetItem(time)
+            item1 = QTableWidgetItem(str(mas[i][0]))
+            item3 = QTableWidgetItem(str(mas[i][3]))
+            tb.setItem(i,0,item1)
+            tb.setItem(i,1,item2)
+            tb.setItem(i,2,item3)
 
         tb.setGeometry(0, 0, dlg.width(), dlg.height())
 
