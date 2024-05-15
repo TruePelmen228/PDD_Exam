@@ -62,7 +62,7 @@ def take_five(x, mas):
         x=random.randrange(min(hm), max(hm)+1)
         if (not x in num_set) and (x in hm) and k:
             num_set.append(x)
-    #print(num_set) 
+    print(num_set) 
     #make five questions with this numbers
     
     cath_mas=[]
@@ -96,7 +96,7 @@ def fill_it(x):
 
     return mas
 h=[]
-take_five('скорость движения', h)
+#take_five('скорость движения', h)
 
 class answer(base ):
 
@@ -133,11 +133,29 @@ def put_ans(que_ans):
     #base.executemany(sql, sss)
     try:
         cursor.execute(sql, m)
+        base.commit()
         print("status:", cursor.rowcount)
 
     except sqlite3.Error as e:
         print("ex:", e)
     base.close()
 s=[13, 8, 10]
-
-put_ans(s)
+def get_ans():
+    ans_mas=[]
+    base = sl.connect(NAME_OF_DB)
+    data = base.execute("SELECT session_number FROM answers")
+    hm=[]    
+    for row in data:
+        hm.append(row[0])
+    if max(hm)>15:
+        hm=hm[-15::]
+    for i in range(len(hm)):
+        data1 = base.execute("SELECT * FROM answers WHERE session_number = ?;", (hm[i], ))
+        rec=[]
+        for row in data1:
+            for j in range(4):
+                rec.append(row[j])
+        ans_mas.append(rec)
+    print(ans_mas)
+    return ans_mas
+get_ans()

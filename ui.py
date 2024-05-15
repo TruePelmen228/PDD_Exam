@@ -10,7 +10,6 @@ import datetime
 
 
 
-
 def word_wrap(x):
     
     s=x.text()
@@ -26,7 +25,7 @@ def word_wrap(x):
     x.setText(s)   
 class MainWindow(QMainWindow):
     h=[]
-    queue_q=headder.take_five('остановка и стоянка', h)+headder.take_five('общие положения', h)
+    queue_q=headder.take_five('скорость движения', h)+headder.take_five('остановка и стоянка', h)+headder.take_five('дорожные знаки', h)+headder.take_five('общие положения', h)
     start_widget = [] #Интерфейс главного окна
     exam_widget = [] #Интерфейс экзаминационного окна
     current_issue = 0
@@ -62,7 +61,7 @@ class MainWindow(QMainWindow):
         button_st1.setCheckable(True)
         #button_st1.resize(200, 80)
         
-        # button_st1.clicked.connect(self.exam)
+        button_st1.clicked.connect(self.statistics)
         layout.addWidget(button_st1)
         layout.setContentsMargins(200,20,200,20)
         self.start_widget[0].setLayout(layout)
@@ -281,9 +280,12 @@ class MainWindow(QMainWindow):
             self.sender().hide()
             now = datetime.datetime.now()
             self.current_time1 = now.strftime("%H:%M:%S")
+            print(self.current_time1)
             minuts =int(self.current_time1[3:5:])-int(self.current_time[3:5:])
             seconds =int(self.current_time1[6:8:])-int(self.current_time[6:8:])
-            print(str(minuts)+':'+str(seconds))
+            if seconds<0:
+                minuts-=1
+                seconds+=60
             self.ans_rec.append(minuts)
             self.ans_rec.append(seconds)
             self.tabel_show()
@@ -355,8 +357,8 @@ class MainWindow(QMainWindow):
                     else:
                         col=(255, 0, 0)'''
 
-        correct_color = QColor(0, 255, 0)
-        incorrect_color = QColor(255, 0, 0)
+        correct_color = QColor(130, 235, 158)
+        incorrect_color = QColor(235, 130, 130)
         ct=0
 
         for i in range(self.current_issue):
@@ -382,8 +384,37 @@ class MainWindow(QMainWindow):
         correct_count_label.move(0, 650)
         correct_count_label.show()
         print(self.ans_rec)
+        headder.put_ans(self.ans_rec)
         #correct_count_item = QTableWidgetItem(str(ct))
         #tb.setItem(len(self.big_queue), 0, correct_count_item)
+
+    def statistics(self):
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Статистика за последнее время")
+        dlg.resize(500, 500)
+        mas=headder.get_ans()
+        tb=QTableWidget(len(mas), 3, dlg)
+        tb.setHorizontalHeaderLabels(["Номер", "Время прохождения", "Кол-во правильных ответов"])
+        tb.setColumnWidth(1, 200)
+        tb.setColumnWidth(2, 200)
+        tb.setColumnWidth(0, 50)
+        for i in range(len(mas)):
+            for m in range(3):
+                if m==1:
+                    secs=str(mas[i][2])
+                    if len(secs)==1:
+                        secs='0'+secs
+                    mins=str(mas[i][1])
+                    if len(mins)==1:
+                        mins='0'+mins
+                    time=mins+':'+secs
+                    item = QTableWidgetItem(time)
+                else:
+                    item = QTableWidgetItem(str(mas[i][m]))
+                tb.setItem(i, m, item)
+        tb.show()
+        dlg.exec()
+        
 
 
     #def update(self):
