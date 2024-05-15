@@ -4,6 +4,8 @@ import headder
 from PyQt6.QtGui import QPixmap, QFont, QColor
 from PyQt6.QtWidgets import  QDialog, QTableWidgetItem, QTableWidget, QApplication, QMainWindow, QPushButton, QLabel, QCheckBox, QMessageBox, QButtonGroup, QVBoxLayout, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy
 from PyQt6.QtCore import QTimer
+import datetime
+
 
 
 
@@ -24,13 +26,14 @@ def word_wrap(x):
     x.setText(s)   
 class MainWindow(QMainWindow):
     h=[]
-    queue_q=headder.take_five('дорожные знаки', h)+headder.take_five('остановка и стоянка', h)+headder.take_five('общие положения', h)
+    queue_q=headder.take_five('остановка и стоянка', h)+headder.take_five('общие положения', h)
     start_widget = [] #Интерфейс главного окна
     exam_widget = [] #Интерфейс экзаминационного окна
     current_issue = 0
     big_queue=[]
     ans_q=[]
     tabel=[]
+    ans_rec=[]
     timer = QTimer()
     
     exam_time = 0
@@ -67,6 +70,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.start_widget[0])
 
     def exam(self):
+        now = datetime.datetime.now()
+        self.current_time = now.strftime("%H:%M:%S")
+        print(self.current_time)
+        #print(current_time)
         #self.sender().hide()
         self.exam_time = 1200
         self.sender().setChecked(False) 
@@ -272,6 +279,13 @@ class MainWindow(QMainWindow):
             for i in range(len(self.big_queue[self.current_issue-1])):
                 self.big_queue[self.current_issue-1][i].hide()
             self.sender().hide()
+            now = datetime.datetime.now()
+            self.current_time1 = now.strftime("%H:%M:%S")
+            minuts =int(self.current_time1[3:5:])-int(self.current_time[3:5:])
+            seconds =int(self.current_time1[6:8:])-int(self.current_time[6:8:])
+            print(str(minuts)+':'+str(seconds))
+            self.ans_rec.append(minuts)
+            self.ans_rec.append(seconds)
             self.tabel_show()
             self.timer.stop()
         else:
@@ -329,7 +343,7 @@ class MainWindow(QMainWindow):
         tb.setColumnWidth(2, 200)
         tb.setColumnWidth(3, 200)
         tb.setColumnWidth(0, 50)
-        ct=0
+        '''ct=0
         for i in range(self.current_issue):
             for m in range(4):
                 tb.setItem(i,m, QTableWidgetItem(str(self.tabel[i][m+1])))
@@ -339,10 +353,11 @@ class MainWindow(QMainWindow):
                         col=(0, 255, 0)
                         ct+=1
                     else:
-                        col=(255, 0, 0)
+                        col=(255, 0, 0)'''
 
         correct_color = QColor(0, 255, 0)
         incorrect_color = QColor(255, 0, 0)
+        ct=0
 
         for i in range(self.current_issue):
             for m in range(4):
@@ -350,9 +365,13 @@ class MainWindow(QMainWindow):
                 if m == 3:  
                     if self.tabel[i][0]:
                         item.setBackground(correct_color)
+                        ct+=1
                     else:
                         item.setBackground(incorrect_color)
                 tb.setItem(i, m, item)
+        #self.ans_rec.append(self.current_time)
+        #self.ans_rec.append(self.current_time1)
+        self.ans_rec.append(ct)
 
         correct_count_label = QLabel(str(ct))
         #s=QTableWidgetItem(str(ct))            
@@ -362,7 +381,7 @@ class MainWindow(QMainWindow):
         tb.show()
         correct_count_label.move(0, 650)
         correct_count_label.show()
-
+        print(self.ans_rec)
         #correct_count_item = QTableWidgetItem(str(ct))
         #tb.setItem(len(self.big_queue), 0, correct_count_item)
 

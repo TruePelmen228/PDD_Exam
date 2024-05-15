@@ -2,8 +2,8 @@ import sqlite3 as sl
 import random
 #import mysql.connector
 
-NAME_OF_DB_Q='data.db'
-NAME_OF_DB_A=''
+NAME_OF_DB='data.db'
+
 
 class base(object):
     def __init__(self, number, right_answer):
@@ -51,7 +51,7 @@ def take_five(x, mas):
     for row in take:
         hm.append(row[0])
     #choose some random numbers of them
-    print(hm)
+    #print(hm)
     if len(mas)!=0:
         k= not x in mas
     else:
@@ -62,7 +62,7 @@ def take_five(x, mas):
         x=random.randrange(min(hm), max(hm)+1)
         if (not x in num_set) and (x in hm) and k:
             num_set.append(x)
-    print(num_set) 
+    #print(num_set) 
     #make five questions with this numbers
     
     cath_mas=[]
@@ -108,3 +108,36 @@ class answer(base ):
 
     #def reFill_it():
         #function wich takes fields of obj into "answers" table
+
+
+def put_ans(que_ans):
+    base = sl.connect(NAME_OF_DB)
+    data = base.execute("SELECT session_number FROM answers")
+    cursor=base.cursor()
+    sql = "INSERT INTO answers (time_m, time_s, right_answers) values(?, ?, ?)"
+    hm=[]    
+    for row in data:
+        hm.append(row[0])
+    print(hm)
+    if len(hm)==0:
+        k=1
+    else:
+        k=max(hm)+1
+    time_m = que_ans[0]
+    time_s = que_ans[1]
+    right_ans=que_ans[2]
+    #test=(1, 15, 20, 10)
+    m=(time_m, time_s, right_ans)
+    
+    print(m)
+    #base.executemany(sql, sss)
+    try:
+        cursor.execute(sql, m)
+        print("status:", cursor.rowcount)
+
+    except sqlite3.Error as e:
+        print("ex:", e)
+    base.close()
+s=[13, 8, 10]
+
+put_ans(s)
