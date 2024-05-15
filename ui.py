@@ -391,29 +391,36 @@ class MainWindow(QMainWindow):
     def statistics(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("Статистика за последнее время")
-        dlg.resize(500, 500)
-        mas=headder.get_ans()
-        tb=QTableWidget(len(mas), 3, dlg)
+        dlg.resize(500, 300)
+
+        mas = headder.get_ans()
+        tb = QTableWidget(len(mas), 3, dlg)
         tb.setHorizontalHeaderLabels(["Номер", "Время прохождения", "Кол-во правильных ответов"])
+
         tb.setColumnWidth(1, 200)
         tb.setColumnWidth(2, 200)
         tb.setColumnWidth(0, 50)
         for i in range(len(mas)):
             for m in range(3):
-                if m==1:
-                    secs=str(mas[i][2])
-                    if len(secs)==1:
-                        secs='0'+secs
-                    mins=str(mas[i][1])
-                    if len(mins)==1:
-                        mins='0'+mins
-                    time=mins+':'+secs
+                if m == 1:
+                    secs = str(mas[i][2])
+                    if len(secs) == 1:
+                        secs = '0' + secs
+                    mins = str(mas[i][1])
+                    if len(mins) == 1:
+                        mins = '0' + mins
+                    time = mins + ':' + secs
                     item = QTableWidgetItem(time)
                 else:
                     item = QTableWidgetItem(str(mas[i][m]))
                 tb.setItem(i, m, item)
-        tb.show()
+
+        tb.setGeometry(0, 0, dlg.width(), dlg.height())
+
+        dlg.setLayout(QVBoxLayout())
+        dlg.layout().addWidget(tb)
         dlg.exec()
+        self.sender().setChecked(False) 
         
 
 
