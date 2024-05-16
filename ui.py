@@ -79,10 +79,13 @@ class MainWindow(QMainWindow):
         #print(current_time)
         #self.sender().hide()
         self.exam_time = 1200
+        self.timer = QTimer()
+        #self.exam_time = 5
         self.sender().setChecked(False) 
         self.start_widget[0].hide()
         self.start_widget[0] = self.takeCentralWidget()
         self.timer.timeout.connect(self.processOneThing)
+        
         
 
 
@@ -317,7 +320,19 @@ class MainWindow(QMainWindow):
         
     def processOneThing(self):
         self.exam_time = self.exam_time - 1
-        self.set_time_srt()       
+        self.set_time_srt()
+        if self.exam_time <=0:
+            self.timer.stop()
+            reply = QMessageBox.question(self, 'Экзамен по ПДД', "Время истекло, экзамен завершён", QMessageBox.StandardButton.Ok)
+            if reply == QMessageBox.StandardButton.Ok:
+                self.exam_widget.clear()
+                self.big_queue.clear()
+                self.ans_q.clear()
+                self.tabel.clear()
+                self.timer.stop()
+                self.timer_labels.clear()
+                self.setCentralWidget(self.start_widget[0])
+                self.start_widget[0].show()
 
     def set_time_srt(self):
             
