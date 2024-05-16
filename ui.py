@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import  QDialog, QTableWidgetItem, QTableWidget, QApplicati
 from PyQt6.QtCore import QTimer
 import datetime
 
-
+#ura pobeda
 
 
 
