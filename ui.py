@@ -2,8 +2,8 @@ from pickle import FALSE
 import sys
 import headder
 from PyQt6.QtGui import QPixmap, QFont, QColor
-from PyQt6.QtWidgets import  QDialog, QTableWidgetItem, QTableWidget, QApplication, QMainWindow, QPushButton, QLabel, QCheckBox, QMessageBox, QButtonGroup, QVBoxLayout, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy
-from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import  QDialog, QHeaderView, QTableWidgetItem, QTableWidget, QApplication, QMainWindow, QPushButton, QLabel, QCheckBox, QMessageBox, QButtonGroup, QVBoxLayout, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy
+from PyQt6.QtCore import QEvent, QTimer
 import datetime
 
 #ura pobeda
@@ -34,6 +34,8 @@ class MainWindow(QMainWindow):
     ans_q=[]
     tabel=[]
     ans_rec=[]
+    
+    q_table_wigwtr = []
     timer = QTimer()
     
     exam_time = 0
@@ -99,7 +101,8 @@ class MainWindow(QMainWindow):
             buttons_Vlayaut = QVBoxLayout()
             buttons_Hlayaut = QHBoxLayout()
             down_layout = QHBoxLayout()
-            
+            #sas_layout.insertSpacing(0,100)
+            #down_layout.insertSpacing(0,100)
             masas = []           
             label = QLabel(self.queue_q[self.current_issue+i][2], self)
             self.timer_labels.append(QLabel(self))
@@ -129,7 +132,8 @@ class MainWindow(QMainWindow):
                 lb.resize(750, 280)
                 lb.setPixmap(QPixmap(str(self.queue_q[self.current_issue+i][3])).scaled(lb.size()))
                 layout.addWidget(lb)
-                layout.insertSpacing(4,150)
+                layout.insertSpacing(3,50)
+                layout.insertSpacing(5,50)
             else:
                 layout.insertSpacing(2,400)
             #label.hide()
@@ -174,7 +178,7 @@ class MainWindow(QMainWindow):
             button_sl.clicked.connect(lambda state, sas=sas: self.the_button_was_clicked(sas))
             button_sl.move(620,500)
             button_sl.setStyleSheet("font-size: 15pt;")
-            button_sl.setFixedSize(60,60)
+            #button_sl.setFixedSize(60,60)
             button_sl.show()
 
             button_s2 = QPushButton("<-", self)
@@ -183,18 +187,24 @@ class MainWindow(QMainWindow):
             button_s2.clicked.connect(self.the_button_back_was_clicked)
             #button_s2.move(560,500)
             button_s2.setStyleSheet("font-size: 15pt;")
-            button_s2.setFixedSize(60,60)
+            #button_s2.setFixedSize(60,60)
             button_s2.show()
-            buttons_Hlayaut.addSpacing(200)
+            #buttons_Hlayaut.addSpacing(200)
             buttons_Hlayaut.addWidget(button_s2)
             buttons_Hlayaut.addWidget(button_sl)
             #buttons_Hlayaut.setContentsMargins(20,80,20,20)
             
             buttons_Vlayaut.addLayout(buttons_Hlayaut)
 
-            down_layout.addLayout(sas_layout)
-            down_layout.addLayout(buttons_Vlayaut)
-            layout.addLayout(down_layout)
+            #down_layout.addLayout(sas_layout)
+            #down_layout.addLayout(buttons_Vlayaut)
+            #layout.addLayout(down_layout)
+            horisontal_sus_layaut = QHBoxLayout()
+            horisontal_sus_layaut.addLayout(sas_layout);
+            #horisontal_sus_layaut.addSpacerItem(QSpacerItem(100,10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
+            horisontal_sus_layaut.insertSpacing(0,150)
+            layout.addLayout(horisontal_sus_layaut)
+            layout.addLayout(buttons_Vlayaut)
             self.exam_widget[i].setLayout(layout)
             self.exam_widget[i].hide()
             
@@ -335,22 +345,11 @@ class MainWindow(QMainWindow):
                 self.start_widget[0].show()
 
     def set_time_srt(self):
-            
-            minutes =    int(self.exam_time/int(60))
-            seconds = self.exam_time  - minutes * 60
-            sec = ""
-            mins = ""
-            if seconds < 10:
-                sec = f"0{seconds}"
-            else:
-                sec = f"{seconds}"
-            if minutes < 10:
-                mins = f"0{minutes}"
-            else:
-                mins = f"{minutes}"
-            self.timer_str = f"{mins}:{sec}"
-            if len(self.queue_q) > self.current_issue:
-                self.timer_labels[self.current_issue].setText(self.timer_str)
+        minutes = self.exam_time // 60
+        seconds = self.exam_time % 60
+        self.timer_str = f"{minutes:02d}:{seconds:02d}"
+        if len(self.queue_q) > self.current_issue:
+            self.timer_labels[self.current_issue].setText(self.timer_str)
             
             
 
@@ -368,65 +367,63 @@ class MainWindow(QMainWindow):
     
 
     def tabel_show(self):
-        q_widget =  QWidget(self)
+        q_widget = QWidget(self)
         v_layot = QVBoxLayout()
 
-        tb=QTableWidget(len(self.big_queue), 4, self)
+        tb = QTableWidget(len(self.big_queue), 4, self)
         tb.setHorizontalHeaderLabels(["Номер", "Категория", "Правильный ответ", "Ответ"])
-        tb.setColumnWidth(1, 200)
-        tb.setColumnWidth(2, 200)
-        tb.setColumnWidth(3, 200)
-        tb.setColumnWidth(0, 50)
-        '''ct=0
-        for i in range(self.current_issue):
-            for m in range(4):
-                tb.setItem(i,m, QTableWidgetItem(str(self.tabel[i][m+1])))
-                if m==3:
-                    col=()
-                    if self.tabel[i][0]:
-                        col=(0, 255, 0)
-                        ct+=1
-                    else:
-                        col=(255, 0, 0)'''
+        self.q_table_wigwtr.clear()
+        self.q_table_wigwtr.append(tb)
+        header = tb.horizontalHeader()
+        #header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        #header.setStretchLastSection(False)
+
+
 
         correct_color = QColor(130, 235, 158)
         incorrect_color = QColor(235, 130, 130)
-        ct=0
+        ct = 0
 
         for i in range(self.current_issue):
             for m in range(4):
-                item = QTableWidgetItem(str(self.tabel[i][m+1]))
+                item = QTableWidgetItem(str(self.tabel[i][m + 1]))
                 if m == 3:  
                     if self.tabel[i][0]:
                         item.setBackground(correct_color)
-                        ct+=1
+                        ct += 1
                     else:
                         item.setBackground(incorrect_color)
                 tb.setItem(i, m, item)
-        #self.ans_rec.append(self.current_time)
-        #self.ans_rec.append(self.current_time1)
+
         self.ans_rec.append(ct)
 
-        correct_count_label = QLabel(str(ct))
-        #s=QTableWidgetItem(str(ct))            
-        #tb.setItem(len(self.big_queue),0, QTableWidgetItem(str(ct)))    
+        correct_count_label = QLabel(f"Количество правильных ответов: {ct}")
         tb.resize(785, 600)
-        #tb.sizePolicy = QSizePolicy.Policy.Maximum
         tb.show()
+
         v_layot.addWidget(tb)
-        correct_count_label.move(0, 650)
-        correct_count_label.show()
-        print(self.ans_rec)
+        v_layot.addWidget(correct_count_label)
+
         headder.put_ans(self.ans_rec)
-        btn = QPushButton("Вернутся в главное меню");
+
+        btn = QPushButton("Вернуться в главное меню")
         btn.clicked.connect(self.the_button_end_was_clicked)
-        #v_layot.setContentsMargins(200,20,200,20)
         v_layot.addWidget(btn)
+
         q_widget.setLayout(v_layot)
         self.setCentralWidget(q_widget)
+        column_percentages_tabel = [0.1, 0.2, 0.45, 0.25]
+
+        
+        total_width = self.width()
+        for i, percentage in enumerate(column_percentages_tabel):
+            header.resizeSection(i, int(total_width * percentage))
+            print(int(total_width * percentage))
+            print(i)        
         q_widget.show()
-        #correct_count_item = QTableWidgetItem(str(ct))
-        #tb.setItem(len(self.big_queue), 0, correct_count_item)
+
+        
+        tb.viewport().installEventFilter(self)
 
     def statistics(self):
         dlg = QDialog(self)
@@ -435,13 +432,17 @@ class MainWindow(QMainWindow):
 
         mas = headder.get_ans()
         tb = QTableWidget(len(mas), 3, dlg)
+        self.q_table_wigwtr.clear()
+        self.q_table_wigwtr.append(tb)
         tb.setHorizontalHeaderLabels(["Номер", "Время прохождения", "Кол-во правильных ответов"])
 
-        tb.setColumnWidth(1, 200)
-        tb.setColumnWidth(2, 200)
-        tb.setColumnWidth(0, 50)
+        header = tb.horizontalHeader()
+        #header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        #header.setStretchLastSection(False)
+
+        
+
         for i in range(len(mas)):
-            
             secs = str(mas[i][2])
             if len(secs) == 1:
                 secs = '0' + secs
@@ -452,16 +453,47 @@ class MainWindow(QMainWindow):
             item2 = QTableWidgetItem(time)
             item1 = QTableWidgetItem(str(mas[i][0]))
             item3 = QTableWidgetItem(str(mas[i][3]))
-            tb.setItem(i,0,item1)
-            tb.setItem(i,1,item2)
-            tb.setItem(i,2,item3)
+            tb.setItem(i, 0, item1)
+            tb.setItem(i, 1, item2)
+            tb.setItem(i, 2, item3)
 
         tb.setGeometry(0, 0, dlg.width(), dlg.height())
 
         dlg.setLayout(QVBoxLayout())
         dlg.layout().addWidget(tb)
+####
+        column_percentages_statistics = [0.1, 0.45, 0.45]
+       
+        tb.viewport().installEventFilter(self)
+        total_width =        dlg.width()
+
+        for i, percentage in enumerate(column_percentages_statistics):
+            header.resizeSection(i, int(total_width * percentage))
+            print(int(total_width * percentage))
+            print(i)        
         dlg.exec()
-        self.sender().setChecked(False) 
+        self.sender().setChecked(False)
+
+    # def eventFilter(self, obj, event):
+    #     if isinstance(obj, QWidget)or isinstance(obj, QDialog) and event.type() == QEvent.Type.Resize:
+           
+    #         if len(self.q_table_wigwtr) !=0:
+    #             header = self.q_table_wigwtr[0].horizontalHeader()
+    #             total_width = obj.width()
+    #             if self.q_table_wigwtr[0] == obj:
+    #                 if self.q_table_wigwtr[0].columnCount() == 4:
+    #                     column_percentages = [0.1, 0.45, 0.25, 0.2]
+    #                 elif self.q_table_wigwtr[0].columnCount() == 3:
+    #                     column_percentages = [0.1, 0.45, 0.45]
+    #                 for i, percentage in enumerate(column_percentages):
+    #                     pass
+    #                     #header.resizeSection(i, int(total_width * percentage))
+    #         #print("112")
+    #         return super().eventFilter(obj, event)
+        
+                
+
+    #     return super().eventFilter(obj, event)
         
 
 
