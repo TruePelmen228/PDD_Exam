@@ -62,7 +62,7 @@ def take_five(x, mas):
         x=random.randrange(min(hm), max(hm)+1)
         if (not x in num_set) and (x in hm) and k:
             num_set.append(x)
-    print(num_set) 
+    #print(num_set) 
     #make five questions with this numbers
     
     cath_mas=[]
@@ -97,6 +97,18 @@ def fill_it(x):
     return mas
 h=[]
 #take_five('скорость движения', h)
+def standard_ex(mas):
+    base = sl.connect('data.db')
+    take= base.execute("SELECT cathigory FROM questions")
+    hm=[]
+    
+    for row in take:
+        hm.append(row[0])
+    while len(mas)<20:
+        s=random.randrange(0, len(hm))
+        mas+=take_five(hm[s], mas)
+    return mas
+standard_ex(h)
 
 class answer(base ):
 
@@ -158,4 +170,4 @@ def get_ans():
         ans_mas.append(rec)
     print(ans_mas)
     return ans_mas
-get_ans()
+#get_ans()

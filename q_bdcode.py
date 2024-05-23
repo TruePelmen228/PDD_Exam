@@ -38,7 +38,7 @@ def fill_bill():
     k=top
     
     f=open('qsp.txt')
-    for i in range(23):
+    for i in range(42):
         l=[]
         k+=1
         l.append(k)
@@ -47,8 +47,8 @@ def fill_bill():
             a=f.readline()
             l.append(a[:-1:])
         m=(l[0],l[1],l[2],l[3],l[4],l[5],l[6],l[7],l[8])
-        if s[:-1:]=='14':
-            print(m)
+        #if s[:-1:]=='14':
+            #print(m)
         data.append(m)
     with base:
         base.executemany(sql, data)   
@@ -86,13 +86,27 @@ a=[]
 '''g=int(input())
 if g==0:
     delete_last()'''
-fill_bill()
+#fill_bill()
 #g=int(input())
-shesh= base.execute("SELECT cathigory FROM questions")
-mas=[]
-for row in shesh:
-    mas.append(row[0])
-print(mas)
+def check_cath():
+    shesh= base.execute("SELECT cathigory FROM questions")
+    mas=[]
+    for row in shesh:
+        mas.append(row[0])
+    print(len(mas))
+    cath=[]
+    ind=[]
+    for i in range(len(mas)):
+        if not mas[i] in cath:
+            cath.append(mas[i])
+            ind.append(1)
+        else:
+            ind[cath.index(mas[i])]+=1
+    for i in range(len(cath)):
+        print(str(cath[i])+' = '+str(ind[i]))
+        
+    #print(mas)
+#check_cath()
 '''if g==0:
     delete_last()'''
 with base:
