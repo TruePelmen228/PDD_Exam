@@ -52,6 +52,7 @@ def take_five(x, mas):
         hm.append(row[0])
     #choose some random numbers of them
     #print(hm)
+    k=0
     if len(mas)!=0:
         k= not x in mas
     else:
@@ -97,18 +98,27 @@ def fill_it(x):
     return mas
 h=[]
 #take_five('скорость движения', h)
-def standard_ex(mas):
+def standard_ex(h):
     base = sl.connect('data.db')
     take= base.execute("SELECT cathigory FROM questions")
     hm=[]
-    
     for row in take:
         hm.append(row[0])
+    s1=[]
+    for i in range(len(hm)):
+        if not hm[i] in s1:
+            s1.append(hm[i])
+  
+    d=[]
+    print(s1)
+    mas=[]
     while len(mas)<20:
-        s=random.randrange(0, len(hm))
-        mas+=take_five(hm[s], mas)
+        s=random.randrange(0, len(s1))
+        if not s in d:
+            d.append(s)
+            mas+=take_five(s1[s], h)
     return mas
-standard_ex(h)
+print(standard_ex(h)[0])
 
 class answer(base ):
 

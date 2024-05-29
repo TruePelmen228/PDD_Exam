@@ -34,7 +34,9 @@ class MainWindow(QMainWindow):
     ans_q=[]
     tabel=[]
     ans_rec=[]
-    
+    w_a=0
+    fg=0
+    con=0
     q_table_wigwtr = []
     timer = QTimer()
     
@@ -59,8 +61,8 @@ class MainWindow(QMainWindow):
         button_st.setCheckable(True)
         button_st1.setCheckable(True)
         #button_st.resize(150, 80)
-        button_st.clicked.connect(self.training)
-        button_st1.clicked.connect(self.exam)
+        button_st.clicked.connect(lambda state, fg=1: self.runner(fg))
+        button_st1.clicked.connect(lambda state, fg=0: self.runner(fg))
         layout.addWidget(button_st)
         layout.addWidget(button_st1)
 
@@ -74,16 +76,20 @@ class MainWindow(QMainWindow):
         self.start_widget[0].setLayout(layout)
 
         self.setCentralWidget(self.start_widget[0])
-    def exam(self):
-        print('no')
 
-    def training(self):
+        
+    def runner(self, fg):
+        self.fg=fg
         self.current_issue = 0
         now = datetime.datetime.now()
         self.current_time = now.strftime("%H:%M:%S")
-        print(self.current_time)
+        #print(self.current_time)
         self.queue_q.clear();
-        self.queue_q=headder.take_five('скорость движения', self.h)+headder.take_five('остановка и стоянка', self.h)+headder.take_five('дорожные знаки', self.h)+headder.take_five('общие положения', self.h)
+        #self.queue_q=headder.take_five('скорость движения', self.h)+headder.take_five('остановка и стоянка', self.h)+headder.take_five('дорожные знаки', self.h)+headder.take_five('общие положения', self.h)
+        self.queue_q=headder.standard_ex(self.h)
+        for i in range(len(self.queue_q)):
+            self.h.append(self.queue_q[i][0])
+        print(self.h)
         #print(current_time)
         #self.sender().hide()
         self.exam_time = 1200
@@ -93,61 +99,66 @@ class MainWindow(QMainWindow):
         self.start_widget[0].hide()
         self.start_widget[0] = self.takeCentralWidget()
         self.timer.timeout.connect(self.processOneThing)
-        
-        
-
-
-        
         for i in range(len(self.queue_q)):
-            q_widget =  QWidget(self)
-            self.exam_widget.append(q_widget) 
+                self.add_questions(i)
+        for i in range(len(self.big_queue[self.current_issue])):
+            self.big_queue[self.current_issue][i].show()
+        self.exam_widget[self.current_issue].show()
+        self.setCentralWidget(self.exam_widget[self.current_issue])
+        self.timer.start(1000)
+        self.set_time_srt()
+           
         
-            layout = QVBoxLayout() #Главный шаблон окна
-            sas_layout = QVBoxLayout() #Тут всё понятно
-            buttons_Vlayaut = QVBoxLayout()
-            buttons_Hlayaut = QHBoxLayout()
-            down_layout = QHBoxLayout()
-            #sas_layout.insertSpacing(0,100)
+    def add_questions(self, i):
+        q_widget =  QWidget(self)
+        self.exam_widget.append(q_widget) 
+        
+        layout = QVBoxLayout() #Главный шаблон окна
+        sas_layout = QVBoxLayout() #Тут всё понятно
+        buttons_Vlayaut = QVBoxLayout()
+        buttons_Hlayaut = QHBoxLayout()
+        down_layout = QHBoxLayout()
+        #sas_layout.insertSpacing(0,100)
             #down_layout.insertSpacing(0,100)
-            masas = []           
-            label = QLabel(self.queue_q[self.current_issue+i][2], self)
-            self.timer_labels.append(QLabel(self))
-            buttonlabel_Hlayaut = QHBoxLayout()
+        masas = []           
+        label = QLabel(str(i+1)+'. '+self.queue_q[i][2], self)
+        self.timer_labels.append(QLabel(self))
+        buttonlabel_Hlayaut = QHBoxLayout()
             
-            button_stop = QPushButton("X", self)
-            button_stop.setCheckable(True)
-            button_stop.clicked.connect(self.the_button_stop_was_clicked)
-            button_stop.setStyleSheet("font-size: 16pt;")
-            button_stop.setFixedSize(60,60)
-            button_stop.show()
+        button_stop = QPushButton("X", self)
+        button_stop.setCheckable(True)
+        button_stop.clicked.connect(self.the_button_stop_was_clicked)
+        button_stop.setStyleSheet("font-size: 16pt;")
+        button_stop.setFixedSize(60,60)
+        button_stop.show()
 
-            buttonlabel_Hlayaut.addWidget(button_stop)
-            buttonlabel_Hlayaut.addWidget(label)
+        buttonlabel_Hlayaut.addWidget(button_stop)
+        buttonlabel_Hlayaut.addWidget(label)
             
-            layout.addLayout(buttonlabel_Hlayaut)
-            layout.addWidget(self.timer_labels[i])
-            layout.addSpacerItem(QSpacerItem(10,10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
-            lb = QLabel(self)
-            label.setWordWrap(True)
-            label.resize(785, 100)
-            if str(self.queue_q[self.current_issue+i][3]) != '-':
-                print(str(self.queue_q[self.current_issue+i][3]))
+        layout.addLayout(buttonlabel_Hlayaut)
+        layout.addWidget(self.timer_labels[i])
+        layout.addSpacerItem(QSpacerItem(10,10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed))
+        lb = QLabel(self)
+        label.setWordWrap(True)
+        label.resize(785, 100)
+        if str(self.queue_q[i][3]) != '-':
+                #print(str(self.queue_q[self.current_issue+i][3]))
                 
 
                 #lb.move(65, 110)
-                lb.resize(750, 280)
-                lb.setPixmap(QPixmap(str(self.queue_q[self.current_issue+i][3])).scaled(lb.size()))
-                layout.addWidget(lb)
-                layout.insertSpacing(3,50)
-                layout.insertSpacing(5,50)
-            else:
-                layout.insertSpacing(2,400)
+            lb.resize(750, 280)
+            lb.setPixmap(QPixmap(str(self.queue_q[i][3])).scaled(lb.size()))
+            layout.addWidget(lb)
+            layout.insertSpacing(3,50)
+            layout.insertSpacing(5,50)
+        else:
+            layout.insertSpacing(2,400)
             #label.hide()
             #lb.hide()
-            sas = []
+        sas = []
             
-            masas.append(label)
-            masas.append(lb)
+        masas.append(label)
+        masas.append(lb)
             #a1 = QCheckBox(self)
             #a2 = QCheckBox(self)
             #a3 = QCheckBox(self)
@@ -155,72 +166,65 @@ class MainWindow(QMainWindow):
             #a1.stateChanged.connect(self.onStateChanged)
             #a2.stateChanged.connect(self.onStateChanged)
             #a3.stateChanged.connect(self.onStateChanged)
-            sas.append(QCheckBox(self))
-            sas.append(QCheckBox(self))
-            sas.append(QCheckBox(self))
-            hg = 60
-            if self.queue_q[self.current_issue+i][7] != "-":
+        sas.append(QCheckBox(self))
+        sas.append(QCheckBox(self))
+        sas.append(QCheckBox(self))
+        hg = 60
+        if self.queue_q[i][7] != "-":
                 #a4 = QCheckBox(self)
                 #a4.stateChanged.connect(self.onStateChanged)
-                sas.append(QCheckBox(self))
-                ot = 10
-                hg = 55
-            a = 0
-            for checkbox in sas:
-                checkbox.setText(self.queue_q[self.current_issue+i][sas.index(checkbox) + 4])
+            sas.append(QCheckBox(self))
+            ot = 10
+            hg = 55
+        a = 0
+        for checkbox in sas:
+            checkbox.setText(self.queue_q[i][sas.index(checkbox) + 4])
                 #checkbox.resize(510, 80)
                 #checkbox.move(50, 550-ot-hg*a)
                 #checkbox.hide()
-                checkbox.stateChanged.connect(lambda state, sas=sas: self.onStateChanged(sas))
-                word_wrap(checkbox)
-                masas.append(checkbox)
-                a+=1
-                sas_layout.addWidget(checkbox)
-            self.big_queue.append(masas)
+            checkbox.stateChanged.connect(lambda state, sas=sas: self.onStateChanged(sas))
+            word_wrap(checkbox)
+            masas.append(checkbox)
+            a+=1
+            sas_layout.addWidget(checkbox)
+        self.big_queue.append(masas)
             
-            button_sl = QPushButton("->", self)
-            button_sl.setCheckable(True)
-            button_sl.resize(60, 60)
-            button_sl.clicked.connect(lambda state, sas=sas: self.the_button_was_clicked(sas))
-            button_sl.move(620,500)
-            button_sl.setStyleSheet("font-size: 15pt;")
+        button_sl = QPushButton("->", self)
+        button_sl.setCheckable(True)
+        button_sl.resize(60, 60)
+        button_sl.clicked.connect(lambda state, sas=sas: self.the_button_was_clicked(sas))
+        button_sl.move(620,500)
+        button_sl.setStyleSheet("font-size: 15pt;")
             #button_sl.setFixedSize(60,60)
-            button_sl.show()
+        button_sl.show()
 
-            button_s2 = QPushButton("<-", self)
-            button_s2.setCheckable(True)
-            button_s2.resize(60, 60)
-            button_s2.clicked.connect(self.the_button_back_was_clicked)
-            #button_s2.move(560,500)
-            button_s2.setStyleSheet("font-size: 15pt;")
-            #button_s2.setFixedSize(60,60)
-            button_s2.show()
-            #buttons_Hlayaut.addSpacing(200)
-            buttons_Hlayaut.addWidget(button_s2)
-            buttons_Hlayaut.addWidget(button_sl)
-            #buttons_Hlayaut.setContentsMargins(20,80,20,20)
+        button_s2 = QPushButton("<-", self)
+        button_s2.setCheckable(True)
+        button_s2.resize(60, 60)
+        button_s2.clicked.connect(self.the_button_back_was_clicked)
+        #button_s2.move(560,500)
+        button_s2.setStyleSheet("font-size: 15pt;")
+        #button_s2.setFixedSize(60,60)
+        button_s2.show()
+        #buttons_Hlayaut.addSpacing(200)
+        buttons_Hlayaut.addWidget(button_s2)
+        buttons_Hlayaut.addWidget(button_sl)
+        #buttons_Hlayaut.setContentsMargins(20,80,20,20)
             
-            buttons_Vlayaut.addLayout(buttons_Hlayaut)
+        buttons_Vlayaut.addLayout(buttons_Hlayaut)
 
-            #down_layout.addLayout(sas_layout)
-            #down_layout.addLayout(buttons_Vlayaut)
-            #layout.addLayout(down_layout)
-            horisontal_sus_layaut = QHBoxLayout()
-            horisontal_sus_layaut.addLayout(sas_layout);
-            #horisontal_sus_layaut.addSpacerItem(QSpacerItem(100,10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
-            horisontal_sus_layaut.insertSpacing(0,150)
-            layout.addLayout(horisontal_sus_layaut)
-            layout.addLayout(buttons_Vlayaut)
-            self.exam_widget[i].setLayout(layout)
-            self.exam_widget[i].hide()
+        #down_layout.addLayout(sas_layout)
+        #down_layout.addLayout(buttons_Vlayaut)
+        #layout.addLayout(down_layout)
+        horisontal_sus_layaut = QHBoxLayout()
+        horisontal_sus_layaut.addLayout(sas_layout);
+        #horisontal_sus_layaut.addSpacerItem(QSpacerItem(100,10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
+        horisontal_sus_layaut.insertSpacing(0,150)
+        layout.addLayout(horisontal_sus_layaut)
+        layout.addLayout(buttons_Vlayaut)
+        self.exam_widget[i].setLayout(layout)
+        self.exam_widget[i].hide()
             
-
-        for i in range(len(self.big_queue[self.current_issue])):
-            self.big_queue[self.current_issue][i].show()
-        self.exam_widget[self.current_issue].show()
-        self.setCentralWidget(self.exam_widget[self.current_issue])
-        self.timer.start(1000)
-        self.set_time_srt()
         
         
         
@@ -256,6 +260,33 @@ class MainWindow(QMainWindow):
                     rec.append(True)
                 else:
                     rec.append(False)
+                    if self.fg==0 and self.con==0:
+                        
+                        if self.w_a<2:
+                            self.w_a+=1
+                            cath=self.queue_q[self.current_issue][1]
+                            print(cath)
+                            self.queue_q+=headder.take_five(cath, self.h)
+                            for i in range(len(self.big_queue), len(self.big_queue)+5):
+                                self.add_questions(i)
+                        else:
+                            reply = QMessageBox.question(self, 'Экзамен по ПДД', 'Вы превысили максимальное количество ошибок:2.\n Хотите завершить экзамен досрочно?', QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No)
+                            #self.sender().setChecked(False) 
+                            if reply == QMessageBox.StandardButton.Yes:
+                                self.exam_widget.clear()
+                                self.big_queue.clear()
+                                self.ans_q.clear()
+                                self.tabel.clear()
+                                self.timer.stop()
+                                self.timer_labels.clear()
+                                self.setCentralWidget(self.start_widget[0])
+                                self.start_widget[0].show()
+                                self.w_a=0
+                                self.con=0
+                                return 
+                            else:
+                                self.con=1
+                        
                 
                 rec.append(self.current_issue+1)                
                 rec.append(self.queue_q[self.current_issue][1])
@@ -321,7 +352,10 @@ class MainWindow(QMainWindow):
                 seconds+=60
             self.ans_rec.append(minuts)
             self.ans_rec.append(seconds)
-            self.ans_rec.append('тренировка')
+            if fg==0:
+                self.ans_rec.append('экзамен')
+            else:
+                self.ans_rec.append('тренировка')
             self.tabel_show()
             self.timer.stop()
         else:
@@ -403,7 +437,7 @@ class MainWindow(QMainWindow):
                 tb.setItem(i, m, item)
 
         self.ans_rec.append(ct)
-        self.ans_rec.append(20)
+        self.ans_rec.append(self.current_issue)
 
         correct_count_label = QLabel(f"Количество правильных ответов: {ct}")
         tb.resize(785, 600)
