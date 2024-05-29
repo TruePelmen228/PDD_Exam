@@ -352,7 +352,7 @@ class MainWindow(QMainWindow):
                 seconds+=60
             self.ans_rec.append(minuts)
             self.ans_rec.append(seconds)
-            if fg==0:
+            if self.fg==0:
                 self.ans_rec.append('экзамен')
             else:
                 self.ans_rec.append('тренировка')
