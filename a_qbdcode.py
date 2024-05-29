@@ -1,7 +1,7 @@
 import sqlite3 as sl
 
 base = sl.connect('data.db')
-
+#data.execute("""DROP TABLE answers""")
 with base:
     data = base.execute("select count(*) from sqlite_master where type='table' and name='filler'")
     
@@ -16,8 +16,11 @@ CREATE TABLE IF NOT EXISTS answers (
                            UNIQUE,
     time_m         INTEGER,
     time_s         INTEGER,
-    right_answers  INTEGER
+    mode           VARCHAR(40),
+    right_answers  INTEGER,
+    of_w           INTEGER   
 );
 
             """)
 
+#data.execute("""DROP TABLE answers""")

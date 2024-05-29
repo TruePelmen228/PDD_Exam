@@ -126,7 +126,7 @@ def put_ans(que_ans):
     base = sl.connect(NAME_OF_DB)
     data = base.execute("SELECT session_number FROM answers")
     cursor=base.cursor()
-    sql = "INSERT INTO answers (time_m, time_s, right_answers) values(?, ?, ?)"
+    sql = "INSERT INTO answers (time_m, time_s, mode, right_answers, of_w) values(?, ?, ?, ?, ?)"
     hm=[]    
     for row in data:
         hm.append(row[0])
@@ -137,9 +137,11 @@ def put_ans(que_ans):
         k=max(hm)+1
     time_m = que_ans[0]
     time_s = que_ans[1]
-    right_ans=que_ans[2]
+    mode=que_ans[2]
+    right_ans=que_ans[3]
+    of_w=que_ans[4]
     #test=(1, 15, 20, 10)
-    m=(time_m, time_s, right_ans)
+    m=(time_m, time_s, mode, right_ans, of_w)
     
     print(m)
     #base.executemany(sql, sss)
@@ -165,7 +167,7 @@ def get_ans():
         data1 = base.execute("SELECT * FROM answers WHERE session_number = ?;", (hm[i], ))
         rec=[]
         for row in data1:
-            for j in range(4):
+            for j in range(6):
                 rec.append(row[j])
         ans_mas.append(rec)
     print(ans_mas)

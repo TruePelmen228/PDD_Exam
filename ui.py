@@ -54,24 +54,30 @@ class MainWindow(QMainWindow):
         
         layout = QVBoxLayout() #Главный шаблон окна
 
-        button_st = QPushButton("Начать экзамен")
+        button_st = QPushButton("Начать Тренировку")
+        button_st1 = QPushButton("Начать Экзамен")
         button_st.setCheckable(True)
-        #button_st.resize(150, 80)
-        button_st.clicked.connect(self.exam)
-        layout.addWidget(button_st)
-
-        button_st1 = QPushButton("Посмотреть статистику")
         button_st1.setCheckable(True)
+        #button_st.resize(150, 80)
+        button_st.clicked.connect(self.training)
+        button_st1.clicked.connect(self.exam)
+        layout.addWidget(button_st)
+        layout.addWidget(button_st1)
+
+        button_st2 = QPushButton("Посмотреть статистику")
+        button_st2.setCheckable(True)
         #button_st1.resize(200, 80)
         
-        button_st1.clicked.connect(self.statistics)
-        layout.addWidget(button_st1)
+        button_st2.clicked.connect(self.statistics)
+        layout.addWidget(button_st2)
         layout.setContentsMargins(200,20,200,20)
         self.start_widget[0].setLayout(layout)
 
         self.setCentralWidget(self.start_widget[0])
-
     def exam(self):
+        print('no')
+
+    def training(self):
         self.current_issue = 0
         now = datetime.datetime.now()
         self.current_time = now.strftime("%H:%M:%S")
@@ -315,6 +321,7 @@ class MainWindow(QMainWindow):
                 seconds+=60
             self.ans_rec.append(minuts)
             self.ans_rec.append(seconds)
+            self.ans_rec.append('тренировка')
             self.tabel_show()
             self.timer.stop()
         else:
@@ -396,6 +403,7 @@ class MainWindow(QMainWindow):
                 tb.setItem(i, m, item)
 
         self.ans_rec.append(ct)
+        self.ans_rec.append(20)
 
         correct_count_label = QLabel(f"Количество правильных ответов: {ct}")
         tb.resize(785, 600)
@@ -428,13 +436,13 @@ class MainWindow(QMainWindow):
     def statistics(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("Статистика за последнее время")
-        dlg.resize(525, 300)
+        dlg.resize(600, 300)
 
         mas = headder.get_ans()
-        tb = QTableWidget(len(mas), 3, dlg)
+        tb = QTableWidget(len(mas), 5, dlg)
         self.q_table_wigwtr.clear()
         self.q_table_wigwtr.append(tb)
-        tb.setHorizontalHeaderLabels(["Номер", "Время прохождения", "Кол-во правильных ответов"])
+        tb.setHorizontalHeaderLabels(["Номер", "Время прохождения", "Режим", "Кол-во правильных ответов", "Максимальное кол-во"])
 
         header = tb.horizontalHeader()
         #header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -453,16 +461,20 @@ class MainWindow(QMainWindow):
             item2 = QTableWidgetItem(time)
             item1 = QTableWidgetItem(str(mas[i][0]))
             item3 = QTableWidgetItem(str(mas[i][3]))
+            item4 = QTableWidgetItem(str(mas[i][4]))
+            item5 = QTableWidgetItem(str(mas[i][5]))
             tb.setItem(i, 0, item1)
             tb.setItem(i, 1, item2)
             tb.setItem(i, 2, item3)
+            tb.setItem(i, 3, item4)
+            tb.setItem(i, 4, item5)
 
         tb.setGeometry(0, 0, dlg.width(), dlg.height())
 
         dlg.setLayout(QVBoxLayout())
         dlg.layout().addWidget(tb)
 ####
-        column_percentages_statistics = [0.1, 0.45, 0.45]
+        column_percentages_statistics = [0.1, 0.15, 0.3, 0.2, 0.25]
        
         tb.viewport().installEventFilter(self)
         total_width =        dlg.width()
