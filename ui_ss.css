@@ -18,13 +18,13 @@ QListWidget::item:selected {
 QLabel {
     background-color: #E1CB74;
     qproperty-alignment: AlignCenter;
-    font-size: 18px;
+    font-size: 20px;
 }
 
 QPushButton {
     background-color: #E1CB74;
     padding: 20px;
-    font-size: 14px;
+    font-size: 20px;
 }
 
 QPushButton:pressed {

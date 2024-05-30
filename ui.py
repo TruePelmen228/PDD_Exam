@@ -470,7 +470,7 @@ class MainWindow(QMainWindow):
     def statistics(self):
         dlg = QDialog(self)
         dlg.setWindowTitle("Статистика за последнее время")
-        dlg.resize(600, 300)
+        dlg.resize(820, 300)
 
         mas = headder.get_ans()
         tb = QTableWidget(len(mas), 5, dlg)
@@ -508,7 +508,7 @@ class MainWindow(QMainWindow):
         dlg.setLayout(QVBoxLayout())
         dlg.layout().addWidget(tb)
 ####
-        column_percentages_statistics = [0.1, 0.15, 0.3, 0.2, 0.25]
+        column_percentages_statistics = [0.1, 0.2, 0.15, 0.3, 0.25]
        
         tb.viewport().installEventFilter(self)
         total_width =        dlg.width()
